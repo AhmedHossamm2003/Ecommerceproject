@@ -1,0 +1,34 @@
+flowchart LR
+    classDef implemented fill:#dcfce7,stroke:#15803d,color:#14532d,stroke-width:2px
+    classDef planned fill:#e0e7ff,stroke:#4338ca,color:#312e81,stroke-width:2px,stroke-dasharray:5 4
+    classDef orchestration fill:#fff7ed,stroke:#c2410c,color:#7c2d12,stroke-width:2px,stroke-dasharray:5 4
+
+    subgraph P1["PHASE 1 - IMPLEMENTED ENVIRONMENT"]
+        DC["Docker Compose"]
+        PG["PostgreSQL\nPersistent Volume"]
+        PA["pgAdmin\nPersistent Volume"]
+        GH["Git Repository\nDocumentation"]
+        DC --> PG
+        DC --> PA
+        GH -. configuration .-> DC
+    end
+
+    subgraph FUTURE["FUTURE PHASES - PLANNED DATA PIPELINE"]
+        CSV["Olist CSV Dataset"] --> ING["Python Ingestion"]
+        ING --> RAW["PostgreSQL\nRaw Storage"]
+        RAW --> CLEAN["Python Cleaning\nand Transformation"]
+        CLEAN --> STAR["PostgreSQL\nAnalytical Tables"]
+        STAR --> DQ["SQL Data Quality\nValidation"]
+        DQ --> VIEWS["SQL Analytical Views"]
+        VIEWS --> BI["Power BI Dashboard"]
+        K["Kestra Orchestration"] -. schedules and monitors .-> ING
+        K -. schedules and monitors .-> CLEAN
+        K -. schedules and monitors .-> DQ
+    end
+
+    PG -. future platform .-> RAW
+    PG -. future platform .-> STAR
+
+    class DC,PG,PA,GH implemented
+    class CSV,ING,RAW,CLEAN,STAR,DQ,VIEWS,BI planned
+    class K orchestration
