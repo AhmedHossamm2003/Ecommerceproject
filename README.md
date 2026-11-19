@@ -45,6 +45,7 @@ ecommerce-sales-pipeline/
 |   `-- README.md
 |-- docs/
 |   |-- proposal.md / proposal.pdf
+|   |-- phase1_presentation_brief.md
 |   |-- architecture.md / architecture.mmd / architecture.png
 |   |-- database_design.md
 |   |-- dataset_profile.md
@@ -55,7 +56,10 @@ ecommerce-sales-pipeline/
 |-- scripts/
 |   |-- profile_dataset.py
 |   |-- generate_artifacts.py
+|   |-- generate_presentation_brief.py
 |   `-- README.md
+|-- output/pdf/
+|   `-- ecommerce_phase1_presentation_brief.pdf
 |-- sql/README.md               # Reserved for later SQL work
 |-- docker-compose.yml
 |-- .env.example
@@ -219,6 +223,7 @@ On this workstation the command completed successfully against the official file
 ## Current Phase 1 status
 
 - Proposal Markdown and rendered PDF: complete.
+- Concise four-page presentation and email PDF: complete.
 - Architecture and conceptual database design: complete.
 - Compose, PostgreSQL, pgAdmin, health checks, volumes, and network: configured and validated live.
 - Local Git repository and initial commit: complete.

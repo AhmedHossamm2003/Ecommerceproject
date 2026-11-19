@@ -37,4 +37,7 @@ logs/
 
 # Generated temporary files
 tmp/
-output/
+output/*
+!output/pdf/
+output/pdf/*
+!output/pdf/ecommerce_phase1_presentation_brief.pdf
