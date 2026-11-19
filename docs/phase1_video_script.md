@@ -2,7 +2,7 @@
 
 ## Before recording
 
-Replace team placeholders in `proposal.md`, regenerate the PDF, install/start Docker, download the dataset if the instructor expects a local file demonstration, and complete the runtime checks in the root README. Do not state that an item is working unless it is visible in the recording.
+Add the institution/department in `proposal.md`, regenerate the PDF if it changes, install/start Docker, download the dataset if the instructor expects a local file demonstration, and complete the runtime checks in the root README. Do not state that an item is working unless it is visible in the recording.
 
 ## 0:00-0:30 - Team and project introduction
 
@@ -10,7 +10,7 @@ Replace team placeholders in `proposal.md`, regenerate the PDF, install/start Do
 
 **Speaker notes:**
 
-"Hello. We are [team names], and our project is the E-commerce Sales Data Pipeline. We selected the public Olist Brazilian E-Commerce dataset. Our long-term goal is to build a reproducible pipeline that loads, validates, transforms, and stores e-commerce data in PostgreSQL for business intelligence. This presentation covers Phase 1 only: the proposal, design, repository, and development environment."
+"Hello. We are Ahmed Hossam Ahmed, Karim Khaled, and Moaz Ahmed, and our project is the E-commerce Sales Data Pipeline. We selected the public Olist Brazilian E-Commerce dataset. Our long-term goal is to build a reproducible pipeline that loads, validates, transforms, and stores e-commerce data in PostgreSQL for business intelligence. This presentation covers Phase 1 only: the proposal, design, repository, and development environment."
 
 ## 0:30-1:30 - Dataset and analytical questions
 
@@ -18,7 +18,7 @@ Replace team placeholders in `proposal.md`, regenerate the PDF, install/start Do
 
 **Speaker notes:**
 
-"Olist publishes anonymized order data from Brazilian marketplaces across multiple CSV files: orders, order items, customers, products, payments, reviews, sellers, geolocation, and category translation. The publisher describes about 100,000 orders from 2016 to 2018, which exceeds the course minimum. [If profiling is complete: briefly show verified row counts and quality findings. If not: say the files still require local download and the profile is intentionally marked pending.]
+"Olist publishes anonymized order data from Brazilian marketplaces across multiple CSV files: orders, order items, customers, products, payments, reviews, sellers, geolocation, and category translation. Our verified profile contains 99,441 orders and 112,650 order items, which exceeds the course minimum. It also identifies important quality issues, including missing lifecycle timestamps, 610 missing product categories, 814 repeated review identifiers, and 261,831 duplicate geolocation rows.
 
 Our first question asks which product categories generate the highest sales revenue. Revenue uses item price and excludes freight. The second asks how monthly revenue and distinct order volumes change using the purchase timestamp. The third asks which customer states contribute the most revenue. The main analysis includes delivered orders. We avoid joining payments directly to order items because that could multiply values."
 
@@ -79,7 +79,7 @@ SELECT current_database(), current_user, version();
 
 ## Recording checklist
 
-- [ ] Replace all student name, ID, and role placeholders.
+- [x] Add all student names, IDs, and Phase 1 roles.
 - [ ] Keep the recording between 3 and 5 minutes.
 - [ ] Hide `.env`, passwords, tokens, email notifications, and personal paths.
 - [ ] Increase terminal and browser font sizes for readability.

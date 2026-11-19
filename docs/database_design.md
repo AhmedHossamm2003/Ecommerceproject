@@ -2,7 +2,7 @@
 
 ## Scope
 
-This is a Phase 1 design artifact. The tables below are proposed only; they are not created or populated in this phase. The model will be reviewed against measured source profiles before implementation.
+This is a Phase 1 design artifact. The tables below are proposed only; they are not created or populated in this phase. The model has been checked against the verified source profile, but its physical implementation and loading remain later-phase work.
 
 ## Fact-table grain
 

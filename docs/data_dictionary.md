@@ -2,7 +2,7 @@
 
 ## Verification status
 
-The CSV files were not present locally on 2026-11-16 and Kaggle credentials were not configured. The column lists below describe the **expected public Olist schema** and are suitable for planning, but their headers and inferred types must be verified by running `scripts/profile_dataset.py` after download. They are not presented as measured local results.
+All nine official CSV files were inspected locally on 2026-11-19. Their headers match the column lists below. Measured row counts, inferred types, null counts, duplicates, SHA-256 hashes, and key tests are recorded in `dataset_profile.md`. The logical types below remain proposed PostgreSQL target interpretations rather than claims that the untyped CSV format enforces them.
 
 Logical types are proposed PostgreSQL-friendly interpretations. Identifier strings must remain text; they are not numeric measures.
 
@@ -79,7 +79,7 @@ Payment rows must first be aggregated to order grain before comparison with orde
 
 ## `olist_order_reviews_dataset.csv`
 
-Candidate key requires profiling. `review_id` may not be sufficient without further validation. Candidate foreign key: `order_id` -> orders.
+Verified candidate key: (`review_id`, `order_id`). `review_id` alone is not unique: profiling found 814 repeated occurrences. Candidate foreign key: `order_id` -> orders, with zero unmatched non-null keys in the measured files.
 
 | Column | Expected logical type | Nullable expectation | Meaning |
 |---|---|---|---|
@@ -123,14 +123,11 @@ Candidate primary key: `product_category_name`.
 | `product_category_name` | TEXT | No | Portuguese category key |
 | `product_category_name_english` | TEXT | No/verify | English category label |
 
-## Cross-file quality checks planned after download
+## Verified structural findings and remaining semantic checks
 
-- Confirm headers exactly match this expected dictionary.
-- Count nulls and exact duplicate rows in every file.
-- Validate candidate keys for uniqueness and non-nullness.
-- Test all proposed foreign keys and report unmatched values.
-- Parse all timestamps with explicit error counts.
-- Check `price`, `freight_value`, and `payment_value` for negative or implausible values.
-- Compare observed `order_status`, state, and payment-type domains with documented expectations.
-- Quantify missing product categories and missing translation matches.
-- Reconcile item-level price totals to order-level aggregates without joining one-to-many tables directly.
+- Headers, row counts, inferred types, nulls, exact duplicates, candidate keys, and proposed foreign keys have been measured in `dataset_profile.md`.
+- All tested order, customer, product, seller, payment, and review relationships have zero unmatched non-null keys.
+- Two non-null product categories lack a translation-table match; 610 product category values are null.
+- `review_id` alone is not unique, while (`review_id`, `order_id`) is unique and non-null.
+- The geolocation file contains 261,831 repeated exact rows and must not be joined directly to facts.
+- Later phases must still test semantic date ordering, accepted status/state/payment domains, negative or implausible monetary values, and item-to-order reconciliation.

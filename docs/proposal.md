@@ -5,19 +5,18 @@
 | Submission field | Value |
 |---|---|
 | Course | Data Engineering |
-| Submission date | [Insert submission date] |
+| Submission date | 19 November 2026 |
 | Institution | [Insert university / department] |
 
 ### Team members and roles
 
 | Student | University ID | Proposed role |
 |---|---|---|
-| Student 1 - Name | ID | Project coordination / data engineering |
-| Student 2 - Name | ID | Database design / SQL |
-| Student 3 - Name | ID | Docker / orchestration |
-| Student 4 - Name | ID | Analytics / documentation |
+| Ahmed Hossam Ahmed | 692400737 | Project coordination / data engineering |
+| Karim Khaled | 692300126 | Database design / SQL |
+| Moaz Ahmed | 692300067 | Docker environment / technical documentation |
 
-> Replace every placeholder before submission. No student identity has been invented.
+> Team details were supplied by the students. The role allocation is a proposed Phase 1 division of responsibilities.
 
 ---
 
@@ -55,23 +54,23 @@ The goal is to design and eventually implement an automated data engineering pip
 | License shown by publisher | CC BY-NC-SA 4.0 |
 | Publisher description | Approximately 100,000 anonymized orders from 2016 to 2018 across Brazilian marketplaces |
 
-The publisher-reported order count satisfies the course requirement of at least 10,000 rows. In the present workspace, the CSV files were not available and Kaggle credentials were not configured. Therefore, the approximate size and date range are publisher statements, not locally verified profile results. The repository includes a standard-library profiler that will replace the pending report with measured counts after legitimate download.
+The source files were downloaded through Kaggle's public dataset endpoint and inspected locally on 19 November 2026. The verified profile contains 99,441 order rows and 112,650 order-item rows, both well above the course minimum of 10,000 rows. SHA-256 hashes in `dataset_profile.md` identify the exact inputs and allow every team member to confirm that they are using the same source version.
 
-### Expected files and structure
+### Verified files and structure
 
-| Source file | Expected subject | Expected candidate key |
+| Source file | Verified subject | Verified candidate key |
 |---|---|---|
 | `olist_orders_dataset.csv` | Order lifecycle and timestamps | `order_id` |
 | `olist_order_items_dataset.csv` | Products and sellers on each order | (`order_id`, `order_item_id`) |
 | `olist_customers_dataset.csv` | Order-level and unique customer identifiers, location | `customer_id` |
 | `olist_products_dataset.csv` | Product category and physical attributes | `product_id` |
 | `olist_order_payments_dataset.csv` | One or more payments per order | (`order_id`, `payment_sequential`) |
-| `olist_order_reviews_dataset.csv` | Review scores and optional comments | To be verified |
+| `olist_order_reviews_dataset.csv` | Review scores and optional comments | (`review_id`, `order_id`) |
 | `olist_sellers_dataset.csv` | Seller and seller location | `seller_id` |
 | `olist_geolocation_dataset.csv` | Postal-prefix coordinates | No unique key assumed |
 | `product_category_name_translation.csv` | Portuguese-to-English category names | `product_category_name` |
 
-The complete expected column-level dictionary and proposed logical types appear in `data_dictionary.md`. Actual headers, types, nulls, duplicates, and key validity remain pending source inspection in `dataset_profile.md`.
+The complete verified column-level dictionary and proposed logical types appear in `data_dictionary.md`. Actual headers, inferred types, nulls, duplicates, source hashes, and key-test results are reported in `dataset_profile.md`.
 
 ## 5. Data fields and proposed logical types
 
@@ -89,7 +88,7 @@ Identifiers and postal prefixes will be stored as text to preserve leading zeros
 
 ## 6. Data quality considerations and limitations
 
-Potential issues to measure after download include missing product categories and attributes, optional review comments, missing lifecycle timestamps for incomplete orders, duplicate or conflicting keys, unmatched translation labels, and non-unique geolocation postal prefixes. Dates can also be logically inconsistent even if they parse successfully, such as a delivery time preceding purchase time.
+Measured quality results include 160 missing order approval timestamps, 1,783 missing carrier-delivery timestamps, and 2,965 missing customer-delivery timestamps. Products contain 610 missing categories and related descriptive attributes plus two rows missing each physical dimension. Reviews contain 87,658 missing titles and 58,275 missing messages. The geolocation file contains 261,831 repeated exact rows. `review_id` alone has 814 duplicate occurrences, while (`review_id`, `order_id`) passes the uniqueness test. Two non-null product category labels have no translation-table match.
 
 The relational shape creates important analytical risks. An order can have multiple items, payments, and possibly review records. Joining all three directly by `order_id` can create a many-to-many multiplication and overstate sales. Geolocation can also contain more than one row per postal prefix and must be deduplicated or aggregated before enrichment. The project will preserve raw data, quantify these cases, and validate row counts and totals at every join.
 
@@ -221,7 +220,7 @@ The sequence may be aligned with the instructor's formal phase names. Every late
 | Deliverable | Acceptance criterion | Status at generation |
 |---|---|---|
 | Proposal | Markdown and readable PDF cover required topics | Complete; team placeholders remain |
-| Dataset documentation | Source, expected structure, limitations, and honest profile status | Complete; measured profile pending CSVs |
+| Dataset documentation | Source, verified structure, limitations, and measured profile | Complete; all nine CSVs profiled |
 | Analytical questions | Business meaning, fields, aggregation, SQL, visual | Complete |
 | Architecture | Mermaid source and rendered image; status distinction | Complete |
 | Database design | Grain, keys, relationships, mappings, assumptions | Complete |
@@ -233,7 +232,7 @@ The sequence may be aligned with the instructor's formal phase names. Every late
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Kaggle access unavailable | Profiling and ingestion cannot proceed | Manual authenticated download; never fabricate or commit source data |
+| Dataset version drift | Team members may analyze different source revisions | Compare the SHA-256 hashes recorded in the verified profile |
 | One-to-many joins inflate revenue | Incorrect conclusions | Declare grains, aggregate safely, and reconcile totals |
 | Missing dimension references | Lost fact rows | Unknown members and unmatched-key reports |
 | Docker or port conflicts | Team setup failure | Prerequisite checks, configurable host ports, troubleshooting guide |
@@ -256,4 +255,4 @@ The sequence may be aligned with the instructor's formal phase names. Every late
 
 ---
 
-**Submission note:** Replace team, institution, course, and date placeholders; download and profile the dataset; validate Docker on a machine with Docker Desktop; record the walkthrough; and connect/push the GitHub remote before final submission.
+**Submission note:** Add the institution/department name; validate Docker on a machine with Docker Desktop; record the walkthrough; and connect/push the GitHub remote before final submission.

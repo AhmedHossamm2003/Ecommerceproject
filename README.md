@@ -6,7 +6,7 @@ Phase 1 university submission for a planned data engineering pipeline using the 
 
 E-commerce data is distributed across orders, items, customers, products, sellers, payments, reviews, and locations. This project will ultimately extract, validate, clean, transform, and store those records in PostgreSQL for reliable reporting. Phase 1 establishes the proposal, conceptual architecture and database model, repository, and local PostgreSQL/pgAdmin environment. It does **not** implement ingestion, the star schema, Kestra flows, analytical views, or Power BI.
 
-The publisher describes the dataset as approximately 100,000 anonymized Brazilian marketplace orders from 2016 to 2018. Raw files were not available during repository initialization, so local row counts and quality statistics remain explicitly pending in `docs/dataset_profile.md`.
+The official source files have now been inspected locally. The verified profile contains 99,441 orders, 112,650 order items, 99,441 customer records, 32,951 products, 103,886 payment records, 99,224 reviews, 3,095 sellers, 1,000,163 geolocation rows, and 71 category translations. Raw files remain excluded from Git; reproducible hashes and measured quality results are recorded in `docs/dataset_profile.md`.
 
 ## Analytical questions
 
@@ -30,7 +30,7 @@ Implemented in Phase 1: Docker Compose configuration, PostgreSQL, pgAdmin, persi
 | Docker Compose | Reproducible local services | Configuration complete; runtime validation pending Docker installation |
 | PostgreSQL 17.12 | Future raw and analytical data store | Container defined |
 | pgAdmin 4 9.19 | Database administration | Container and default server registration defined |
-| Python | Future ingestion/transformation; Phase 1 read-only profiler | Profiler supplied; ingestion not implemented |
+| Python | Future ingestion/transformation; Phase 1 read-only profiler | Verified source profile generated; ingestion not implemented |
 | Mermaid | Architecture source | Diagram source supplied |
 | Kestra | Future orchestration | Planned only |
 | Power BI | Future dashboard | Planned only |
@@ -213,7 +213,7 @@ Never commit `kaggle.json`, tokens, or raw CSVs. Generate the verified local pro
 python scripts/profile_dataset.py
 ```
 
-Until that succeeds, `docs/dataset_profile.md` remains a transparent pending report rather than a fabricated profile.
+On this workstation the command completed successfully against the official files. Other team members can compare the recorded SHA-256 hashes to confirm that they downloaded the same inputs.
 
 ## Current Phase 1 status
 
@@ -221,7 +221,7 @@ Until that succeeds, `docs/dataset_profile.md` remains a transparent pending rep
 - Architecture and conceptual database design: complete.
 - Compose, PostgreSQL, pgAdmin, health checks, volumes, and network: configured.
 - Local Git repository and initial commit: complete.
-- Dataset profile: framework complete; measured results blocked by missing CSVs/Kaggle credentials.
+- Dataset profile: complete and verified against all nine official CSV files.
 - Docker runtime validation: blocked on this workstation because Docker is not installed or not on PATH.
 - Video: script and checklist complete; recording is a manual team action.
 - GitHub publication: pending creation/connection of a remote and authenticated push.
@@ -231,7 +231,7 @@ Until that succeeds, `docs/dataset_profile.md` remains a transparent pending rep
 Create an empty GitHub repository named `ecommerce-sales-pipeline` without adding a README, license, or `.gitignore`, then connect and push this existing local repository:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/ecommerce-sales-pipeline.git
+git remote add origin https://github.com/hossamadel7/ecommerce-sales-pipeline.git
 git remote -v
 git push -u origin main
 ```
@@ -240,7 +240,7 @@ If `origin` already exists but points to the wrong repository, inspect it first 
 
 ```bash
 git remote -v
-git remote set-url origin https://github.com/YOUR_USERNAME/ecommerce-sales-pipeline.git
+git remote set-url origin https://github.com/hossamadel7/ecommerce-sales-pipeline.git
 git push -u origin main
 ```
 

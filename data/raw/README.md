@@ -20,4 +20,4 @@ Download from the [official Kaggle dataset page](https://www.kaggle.com/datasets
 python scripts/profile_dataset.py
 ```
 
-The script reads the originals but never modifies them. It replaces the pending profile in `docs/dataset_profile.md` with measured results.
+The script reads the originals but never modifies them. It regenerates `docs/dataset_profile.md` with measured results and source-file hashes.
