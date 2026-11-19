@@ -27,9 +27,9 @@ Implemented in Phase 1: Docker Compose configuration, PostgreSQL, pgAdmin, persi
 | Technology | Phase 1 use | Status |
 |---|---|---|
 | Git/GitHub | Version control and collaboration | Local Git initialized; remote must be added |
-| Docker Compose | Reproducible local services | Configuration complete; runtime validation pending Docker installation |
-| PostgreSQL 17.12 | Future raw and analytical data store | Container defined |
-| pgAdmin 4 9.19 | Database administration | Container and default server registration defined |
+| Docker Compose | Reproducible local services | Configuration and WSL 2 runtime validated |
+| PostgreSQL 17.12 | Future raw and analytical data store | Container running and healthy; database query passed |
+| pgAdmin 4 9.19 | Database administration | Container healthy; HTTP, login, server registration, and connection tested |
 | Python | Future ingestion/transformation; Phase 1 read-only profiler | Verified source profile generated; ingestion not implemented |
 | Mermaid | Architecture source | Diagram source supplied |
 | Kestra | Future orchestration | Planned only |
@@ -49,6 +49,7 @@ ecommerce-sales-pipeline/
 |   |-- database_design.md
 |   |-- dataset_profile.md
 |   |-- data_dictionary.md
+|   |-- environment_validation.md
 |   `-- phase1_video_script.md
 |-- flows/README.md             # Reserved for later Kestra work
 |-- scripts/
@@ -219,10 +220,10 @@ On this workstation the command completed successfully against the official file
 
 - Proposal Markdown and rendered PDF: complete.
 - Architecture and conceptual database design: complete.
-- Compose, PostgreSQL, pgAdmin, health checks, volumes, and network: configured.
+- Compose, PostgreSQL, pgAdmin, health checks, volumes, and network: configured and validated live.
 - Local Git repository and initial commit: complete.
 - Dataset profile: complete and verified against all nine official CSV files.
-- Docker runtime validation: blocked on this workstation because Docker is not installed or not on PATH.
+- Docker runtime validation: complete using Docker Desktop 4.99.0 with the WSL 2 backend; both services are healthy.
 - Video: script and checklist complete; recording is a manual team action.
 - GitHub publication: pending creation/connection of a remote and authenticated push.
 

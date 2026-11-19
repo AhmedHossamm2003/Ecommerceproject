@@ -2,7 +2,7 @@
 
 **Profile status:** VERIFIED AGAINST LOCAL CSV FILES
 
-**Generated:** 2026-11-19 00:35:51 UTC
+**Generated:** 2026-11-19 07:18:46 UTC
 
 **Method:** `scripts/profile_dataset.py` streamed the unmodified files in `data/raw/`. Counts below are measured locally. SHA-256 values identify the exact inputs.
 

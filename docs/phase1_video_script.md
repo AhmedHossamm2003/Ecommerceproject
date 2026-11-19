@@ -2,7 +2,7 @@
 
 ## Before recording
 
-Add the institution/department in `proposal.md`, regenerate the PDF if it changes, install/start Docker, download the dataset if the instructor expects a local file demonstration, and complete the runtime checks in the root README. Do not state that an item is working unless it is visible in the recording.
+Add the institution/department in `proposal.md`, regenerate the PDF if it changes, start Docker Desktop, and complete the runtime checks in the root README. The official dataset is already present locally for the demonstration but remains excluded from Git. Do not state that an item is working unless it is visible in the recording.
 
 ## 0:00-0:30 - Team and project introduction
 

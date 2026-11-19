@@ -195,7 +195,7 @@ The Compose file pins `postgres:17.12-alpine3.23` and `dpage/pgadmin4:9.19.0`, e
 
 All credentials are supplied through environment variables. `.env.example` contains development placeholders, while `.env` and raw datasets are excluded from Git. Normal `docker compose down` preserves volumes; destructive volume removal is documented but requires deliberate team action.
 
-At creation time, Docker was unavailable on the workstation, so the Compose runtime, browser interface, and live database connection could not be truthfully certified. Static configuration and reproducible verification commands are provided for the team to execute after installing Docker Desktop.
+Runtime validation used Docker Desktop 4.99.0, Engine/CLI 29.9.3, WSL 3.0.1, and WSL 2. `docker compose config` passed and both containers became healthy. PostgreSQL 17.12 answered a query against `ecommerce_db`; pgAdmin returned `200 PING`, imported **E-commerce PostgreSQL (Docker)**, and displayed **Server connected** in the browser. Both named volumes use the local driver. Full evidence is in `environment_validation.md`.
 
 ## 13. Reproducibility plan
 
@@ -219,13 +219,13 @@ The sequence may be aligned with the instructor's formal phase names. Every late
 
 | Deliverable | Acceptance criterion | Status at generation |
 |---|---|---|
-| Proposal | Markdown and readable PDF cover required topics | Complete; team placeholders remain |
+| Proposal | Markdown and readable PDF cover required topics | Complete; institution/department placeholder remains |
 | Dataset documentation | Source, verified structure, limitations, and measured profile | Complete; all nine CSVs profiled |
 | Analytical questions | Business meaning, fields, aggregation, SQL, visual | Complete |
 | Architecture | Mermaid source and rendered image; status distinction | Complete |
 | Database design | Grain, keys, relationships, mappings, assumptions | Complete |
 | Repository | Clean folders, ignore rules, initial commit | Complete locally |
-| Environment | Compose definitions, health checks, network, volumes | Configured; runtime validation pending Docker |
+| Environment | Compose definitions, health checks, network, volumes | Complete; runtime and browser connection validated |
 | Video preparation | Timed script and checklist | Complete; recording pending |
 
 ## 16. Risks and mitigation
@@ -255,4 +255,4 @@ The sequence may be aligned with the instructor's formal phase names. Every late
 
 ---
 
-**Submission note:** Add the institution/department name; validate Docker on a machine with Docker Desktop; record the walkthrough; and connect/push the GitHub remote before final submission.
+**Submission note:** Add the institution/department name; record the walkthrough; and create/connect/push the GitHub remote before final submission.

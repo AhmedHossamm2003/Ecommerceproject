@@ -19,7 +19,7 @@ The editable diagram source is in `architecture.mmd`. The architecture deliberat
 | PostgreSQL | Future raw and analytical storage platform | Container definition, health check, named volume |
 | pgAdmin | Browser-based PostgreSQL administration | Container definition, persistent settings volume, predefined server |
 
-The environment definition is complete, but runtime validation remains pending on this workstation because Docker is unavailable. That limitation does not imply that the containers have been tested successfully.
+The environment definition and live runtime were validated on this workstation with Docker Desktop 4.99.0, Docker Engine/CLI 29.9.3, and the WSL 2 backend. `docker compose config` passed; both containers reached healthy status; PostgreSQL accepted a query; pgAdmin returned HTTP 200, imported its predefined server, and connected visibly to PostgreSQL. See `environment_validation.md` for the captured evidence.
 
 ## Future phases - planned
 
