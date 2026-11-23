@@ -48,6 +48,35 @@ services:
     networks:
       - ecommerce_network
 
+  ingestion:
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile
+    container_name: ecommerce-ingestion
+    profiles: ["ingestion"]
+    restart: "no"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ecommerce_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+      DATA_DIR: /data/raw
+      PROFILE_OUTPUT_DIR: /app/docs
+      SCHEMA_SQL_PATH: /app/sql/02_raw_storage.sql
+      DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-5}
+      DB_RETRY_ATTEMPTS: ${DB_RETRY_ATTEMPTS:-12}
+      DB_RETRY_DELAY_SECONDS: ${DB_RETRY_DELAY_SECONDS:-5}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data/raw:/data/raw:ro
+      - ./docs:/app/docs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecommerce_network
+
 volumes:
   postgres_data:
     name: ecommerce_postgres_data

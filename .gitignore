@@ -19,6 +19,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.runtime/
+.docker-codex/
 
 # IDE and operating system
 .idea/
@@ -34,6 +36,7 @@ logs/
 *.dump
 *.backup
 *.sql.gz
+docs/evidence/*.log
 
 # Generated temporary files
 tmp/
