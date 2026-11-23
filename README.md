@@ -1,10 +1,10 @@
 # E-commerce Sales Data Pipeline
 
-University data engineering project using the [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce). Phase 1 established the design and local database environment; Phase 2 adds working ingestion, persistent raw storage, containerization, and initial profiling.
+University data engineering project using the [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce). Phases 1-3 now provide the local environment, immutable raw ingestion, typed cleaning, an auditable star schema, and analysis-ready PostgreSQL views.
 
 ## Project overview
 
-E-commerce data is distributed across orders, items, customers, products, sellers, payments, reviews, and locations. This project will ultimately extract, validate, clean, transform, and store those records in PostgreSQL for reliable reporting. Phase 1 established the proposal, conceptual architecture and database model, repository, and local PostgreSQL/pgAdmin environment. Phase 2 now ingests unchanged parsed source values into an auditable PostgreSQL raw layer. The star schema, cleaning, orchestration, analytical views, automated quality gates, and Power BI remain future work.
+E-commerce data is distributed across orders, items, customers, products, sellers, payments, reviews, and locations. Phase 1 established the proposal, conceptual architecture, database model, repository, and local PostgreSQL/pgAdmin environment. Phase 2 ingests unchanged parsed source values into an auditable PostgreSQL raw layer. Phase 3 converts the latest successful raw runs into typed clean tables, a reconciled order-item star schema, and category, monthly, and state sales views. Configurable quality gates, orchestration, and Power BI remain future work.
 
 The official source files have now been inspected locally. The verified profile contains 99,441 orders, 112,650 order items, 99,441 customer records, 32,951 products, 103,886 payment records, 99,224 reviews, 3,095 sellers, 1,000,163 geolocation rows, and 71 category translations. Raw files remain excluded from Git; reproducible hashes and measured quality results are recorded in `docs/dataset_profile.md`.
 
@@ -20,7 +20,7 @@ Primary product-sales revenue is `SUM(order_items.price)`, excluding freight. Pr
 
 ![Proposed architecture](docs/architecture.png)
 
-Implemented through Phase 2: Docker Compose, PostgreSQL, pgAdmin, persistent named volumes, a one-shot Python ingestion container, immutable JSONB raw landing storage, run metadata, idempotency, logging, and full source profiling. Cleaning, analytical modeling, Kestra, and Power BI are future work. The original Phase 1 proposal diagram remains in `docs/architecture.md` and `docs/architecture.mmd`; the implemented Phase 2 path is documented in `docs/PHASE2_TECHNICAL_REPORT.md`.
+Implemented through Phase 3: Docker Compose, PostgreSQL, pgAdmin, persistent named volumes, one-shot Python ingestion/transformation containers, immutable JSONB raw storage, typed clean tables, transformation lineage, reject/metric evidence, a star schema, and analytical views. Kestra, configurable quality gates, and Power BI are future work. The original Phase 1 proposal diagram remains in `docs/architecture.md` and `docs/architecture.mmd`; implemented details are in the Phase 2 and Phase 3 technical reports.
 
 ## Technology stack
 
@@ -28,9 +28,9 @@ Implemented through Phase 2: Docker Compose, PostgreSQL, pgAdmin, persistent nam
 |---|---|---|
 | Git/GitHub | Version control and collaboration | Local Git initialized; remote must be added |
 | Docker Compose | Reproducible local services | Configuration and WSL 2 runtime validated |
-| PostgreSQL 17.12 | Future raw and analytical data store | Container running and healthy; database query passed |
+| PostgreSQL 17.12 | Raw, clean, warehouse, and analytical data store | Running and verified through Phase 3 |
 | pgAdmin 4 9.19 | Database administration | Container healthy; HTTP, login, server registration, and connection tested |
-| Python 3.12 | Streaming CSV ingestion and profiling | Implemented in a dedicated one-shot container |
+| Python 3.12 | Streaming ingestion, profiling, and transformation control | Implemented in one-shot containers |
 | psycopg 3 | PostgreSQL connection and COPY loading | Implemented |
 | Mermaid | Architecture source | Diagram source supplied |
 | Kestra | Future orchestration | Planned only |
@@ -55,11 +55,13 @@ ecommerce-sales-pipeline/
 |   |-- phase1_video_script.md
 |   |-- PHASE2_TECHNICAL_REPORT.md
 |   |-- PHASE2_LAB_GUIDE.md
+|   |-- PHASE3_TECHNICAL_REPORT.md
+|   |-- PHASE3_LAB_GUIDE.md
 |   |-- phase2_data_profile.md / phase2_data_profile.csv
 |   `-- evidence/
 |-- flows/README.md             # Reserved for later Kestra work
 |-- scripts/
-|   |-- ingest.py / ingestion/
+|   |-- ingest.py / transform.py / ingestion/
 |   |-- Dockerfile / requirements.txt
 |   |-- profile_dataset.py
 |   |-- generate_artifacts.py
@@ -69,8 +71,9 @@ ecommerce-sales-pipeline/
 |   `-- ecommerce_phase1_presentation_brief.pdf
 |-- sql/
 |   |-- 02_raw_storage.sql
-|   `-- verify_phase2.sql
-|-- tests/                      # Synthetic Phase 2 unit fixtures/tests
+|   |-- 03_phase3_schema.sql / 04_phase3_transform.sql
+|   `-- verify_phase2.sql / verify_phase3.sql
+|-- tests/                      # Synthetic ingestion and SQL safety tests
 |-- docker-compose.yml
 |-- .env.example
 |-- .gitignore
@@ -310,7 +313,46 @@ The before/after results must match. Never use `docker compose down -v` for this
 - Lab discussion/demo: `docs/PHASE2_LAB_GUIDE.md`
 - Actual execution evidence and screenshot checklist: `docs/evidence/`
 
-## Current Phase 1 status
+## Phase 3: clean data and analytical warehouse
+
+### What it does
+
+The manual one-shot transformation selects the latest successful Phase 2 run for each of the nine source files. It safely converts raw strings into typed source-aligned tables, records structurally invalid rows without changing raw storage, and rebuilds a reporting star schema in one transaction.
+
+The fact grain is one order item, identified by (`order_id`, `order_item_id`). Payments and reviews stay in the typed clean layer so their one-to-many relationship with orders cannot multiply item revenue. Exact normalized geolocation duplicates are collapsed while `source_occurrence_count` preserves the source-row total.
+
+### Build and run
+
+```powershell
+docker compose up -d postgres pgadmin
+docker compose --profile transformation build transformation
+docker compose --profile transformation run --rm transformation
+```
+
+The service uses an advisory transaction lock, replaces only derived clean/warehouse data, and preserves raw records plus historical transformation metadata. Rerunning with unchanged raw inputs produces the same derived counts.
+
+### Inspect and verify
+
+```powershell
+Get-Content -Raw sql\verify_phase3.sql | docker compose exec -T postgres psql -U ecommerce_user -d ecommerce_db
+```
+
+The verification covers lineage, clean counts, rejects, quality metrics, dimension/fact counts, item row and revenue reconciliation, geolocation occurrence reconciliation, and the three analytical views:
+
+- `analytics.vw_category_sales`
+- `analytics.vw_monthly_sales`
+- `analytics.vw_state_sales`
+
+The verified official dataset produced 1,289,091 clean rows, 112,650 fact rows, zero rejected rows, and exactly reconciled item revenue of 13,591,643.70. The geolocation clean table contains 738,332 normalized rows representing all 1,000,163 source rows.
+
+### Phase 3 documentation
+
+- Technical design and results: `docs/PHASE3_TECHNICAL_REPORT.md`
+- Read-only verification SQL: `sql/verify_phase3.sql`
+- Lab discussion/demo: `docs/PHASE3_LAB_GUIDE.md`
+- Actual execution evidence: `docs/evidence/PHASE3_VERIFICATION.md`
+
+## Current project status
 
 - Proposal Markdown and rendered PDF: complete.
 - Concise four-page presentation and email PDF: complete.
@@ -319,6 +361,8 @@ The before/after results must match. Never use `docker compose down -v` for this
 - Local Git repository and initial commit: complete.
 - Dataset profile: complete and verified against all nine official CSV files.
 - Docker runtime validation: complete using Docker Desktop 4.99.0 with the WSL 2 backend; both services are healthy.
+- Phase 2 immutable ingestion: complete for all nine official files (1,550,922 raw rows).
+- Phase 3 typed clean layer, star schema, reconciliation, and analytical views: complete and verified.
 - Video: script and checklist complete; recording is a manual team action.
 - GitHub publication: pending creation/connection of a remote and authenticated push.
 
@@ -344,7 +388,7 @@ Do not report the repository as published until the push succeeds and the files 
 
 ## Future phases
 
-Later phases will add cleaning, the star schema, automated quality gates, Kestra orchestration, analytical views, and Power BI. None is falsely marked operational in this repository.
+Phase 4 will add configurable automated quality gates, Phase 5 will add Kestra orchestration, and Phase 6 will add Power BI. None is falsely marked operational in this repository.
 
 ## Troubleshooting
 
@@ -379,6 +423,14 @@ Run `docker compose ps` and `docker compose logs postgres`. Confirm PostgreSQL i
 ### An unchanged file is skipped
 
 This is expected idempotent behavior. Check `raw_data.ingestion_runs` for the earlier successful filename/hash. Use `--force` only for a deliberate additional raw run.
+
+### Transformation reports missing successful source runs
+
+Run Phase 2 ingestion first and verify that every expected filename has a successful row in `raw_data.ingestion_runs`. Skipped and failed attempts are intentionally excluded from Phase 3 source selection.
+
+### A transformation fails
+
+Inspect the transformation service output and `clean_data.transformation_runs.error_message`. The derived rebuild is atomic: a failed guard rolls back the clean/warehouse changes while leaving raw storage untouched.
 
 ### Profiling takes time or memory
 

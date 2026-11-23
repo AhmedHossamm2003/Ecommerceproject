@@ -2,7 +2,7 @@
 
 ## Verification status
 
-All nine official CSV files were inspected locally on 2026-11-19. Their headers match the column lists below. Measured row counts, inferred types, null counts, duplicates, SHA-256 hashes, and key tests are recorded in `dataset_profile.md`. The logical types below remain proposed PostgreSQL target interpretations rather than claims that the untyped CSV format enforces them.
+All nine official CSV files were inspected locally on 2026-11-19. Their headers match the column lists below. Measured row counts, inferred types, null counts, duplicates, SHA-256 hashes, and key tests are recorded in `dataset_profile.md`. Phase 3 implements the logical PostgreSQL interpretations below in `clean_data`; the untyped CSV files themselves do not enforce them. Exact executable columns, constraints, and mappings are in `sql/03_phase3_schema.sql` and `sql/04_phase3_transform.sql`.
 
 Logical types are proposed PostgreSQL-friendly interpretations. Identifier strings must remain text; they are not numeric measures.
 

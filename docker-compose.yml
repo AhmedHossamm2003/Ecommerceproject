@@ -49,6 +49,7 @@ services:
       - ecommerce_network
 
   ingestion:
+    image: ecommerce-sales-pipeline-ingestion:latest
     build:
       context: .
       dockerfile: scripts/Dockerfile
@@ -71,6 +72,33 @@ services:
     volumes:
       - ./data/raw:/data/raw:ro
       - ./docs:/app/docs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecommerce_network
+
+  transformation:
+    image: ecommerce-sales-pipeline-ingestion:latest
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile
+    container_name: ecommerce-transformation
+    profiles: ["transformation"]
+    restart: "no"
+    entrypoint: ["python", "/app/scripts/transform.py"]
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ecommerce_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+      PHASE3_SCHEMA_SQL_PATH: /app/sql/03_phase3_schema.sql
+      PHASE3_TRANSFORM_SQL_PATH: /app/sql/04_phase3_transform.sql
+      DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-5}
+      DB_RETRY_ATTEMPTS: ${DB_RETRY_ATTEMPTS:-12}
+      DB_RETRY_DELAY_SECONDS: ${DB_RETRY_DELAY_SECONDS:-5}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:
       postgres:
         condition: service_healthy

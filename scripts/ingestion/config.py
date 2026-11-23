@@ -36,6 +36,8 @@ class Settings:
     data_dir: Path
     profile_output_dir: Path
     schema_sql_path: Path
+    phase3_schema_sql_path: Path
+    phase3_transform_sql_path: Path
     db_host: str
     db_port: int
     db_name: str
@@ -56,6 +58,18 @@ class Settings:
             ),
             schema_sql_path=Path(
                 os.getenv("SCHEMA_SQL_PATH", str(root / "sql" / "02_raw_storage.sql"))
+            ),
+            phase3_schema_sql_path=Path(
+                os.getenv(
+                    "PHASE3_SCHEMA_SQL_PATH",
+                    str(root / "sql" / "03_phase3_schema.sql"),
+                )
+            ),
+            phase3_transform_sql_path=Path(
+                os.getenv(
+                    "PHASE3_TRANSFORM_SQL_PATH",
+                    str(root / "sql" / "04_phase3_transform.sql"),
+                )
             ),
             db_host=os.getenv("DB_HOST", "localhost"),
             db_port=_positive_int("DB_PORT", 5432),

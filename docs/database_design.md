@@ -2,7 +2,7 @@
 
 ## Scope
 
-This is a Phase 1 design artifact. The tables below are proposed only; they are not created or populated in this phase. The model has been checked against the verified source profile, but its physical implementation and loading remain later-phase work.
+This document originated as the Phase 1 design artifact. Phase 3 now physically implements and populates this model in the `warehouse` schema, with source-aligned typed tables in `clean_data` and reporting views in `analytics`. The executable definitions are authoritative in `sql/03_phase3_schema.sql` and `sql/04_phase3_transform.sql`.
 
 ## Fact-table grain
 
