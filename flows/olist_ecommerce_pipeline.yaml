@@ -31,7 +31,7 @@ tasks:
     retry:
       type: constant
       interval: PT30S
-      maxAttempt: 2
+      maxAttempts: 2
 
   - id: build_clean_warehouse
     type: io.kestra.plugin.docker.cli.Run
@@ -52,7 +52,7 @@ tasks:
     retry:
       type: constant
       interval: PT30S
-      maxAttempt: 2
+      maxAttempts: 2
 
   - id: enforce_quality_gate
     type: io.kestra.plugin.docker.cli.Run
@@ -72,7 +72,7 @@ tasks:
     retry:
       type: constant
       interval: PT30S
-      maxAttempt: 2
+      maxAttempts: 2
 
   - id: prepare_bi_views
     type: io.kestra.plugin.docker.cli.Run
@@ -92,7 +92,7 @@ tasks:
     retry:
       type: constant
       interval: PT30S
-      maxAttempt: 2
+      maxAttempts: 2
 
 triggers:
   - id: weekly_monday_refresh

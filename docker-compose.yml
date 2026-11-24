@@ -191,6 +191,10 @@ services:
       - --flow-path=/app/flows
     environment:
       KESTRA_DB_PASSWORD: ${KESTRA_DB_PASSWORD:-change_me_kestra_local_only}
+      KESTRA_ADMIN_USERNAME: ${KESTRA_ADMIN_USERNAME:-admin@localhost}
+      KESTRA_ADMIN_PASSWORD: ${KESTRA_ADMIN_PASSWORD:-change_me_admin_local_only}
+      KESTRA_TASKS_SCRIPTS_DOCKER_VOLUME_ENABLED: "true"
+      JAVA_OPTS: "-Dkestra.tasks.scripts.docker.volume-enabled=true"
       ENV_PIPELINE_DB_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
       ENV_PIPELINE_RAW_DATA_HOST_PATH: ${PIPELINE_RAW_DATA_HOST_PATH:-/data/olist}
     ports:

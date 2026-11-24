@@ -57,9 +57,10 @@ ecommerce-sales-pipeline/
 |   |-- PHASE2_LAB_GUIDE.md
 |   |-- PHASE3_TECHNICAL_REPORT.md
 |   |-- PHASE3_LAB_GUIDE.md
+|   |-- PRESENTATION_GUIDE.md
 |   |-- phase2_data_profile.md / phase2_data_profile.csv
 |   `-- evidence/
-|-- flows/README.md             # Reserved for later Kestra work
+|-- flows/olist_ecommerce_pipeline.yaml
 |-- scripts/
 |   |-- ingest.py / transform.py / ingestion/
 |   |-- Dockerfile / requirements.txt
@@ -368,7 +369,7 @@ Rules can be enabled, disabled, reclassified, or assigned a new threshold in `qu
 
 Kestra and its dedicated PostgreSQL metadata store are behind the `orchestration` profile. The versioned flow runs ingestion, transformation, quality enforcement, and BI-view preparation as Docker tasks, retries each stage once, and schedules a refresh at 03:00 every Monday in `Africa/Cairo`.
 
-Set `PIPELINE_RAW_DATA_HOST_PATH` in `.env` to the absolute host path of `data/raw`, then run:
+Set `PIPELINE_RAW_DATA_HOST_PATH` in `.env` to the absolute path of `data/raw` as seen by the Docker daemon. On Docker Desktop for Windows, use the VM form (for example, `/run/desktop/mnt/host/c/Users/you/project/data/raw`) rather than `C:/...`, then run:
 
 ```powershell
 docker compose --profile orchestration up -d postgres kestra-postgres kestra
@@ -399,9 +400,9 @@ The `powerbi/` directory provides credential-free PostgreSQL Power Query definit
 - Docker runtime validation: complete using Docker Desktop 4.99.0 with the WSL 2 backend; both services are healthy.
 - Phase 2 immutable ingestion: complete for all nine official files (1,550,922 raw rows).
 - Phase 3 typed clean layer, star schema, reconciliation, and analytical views: complete and verified.
-- Phase 4 configurable quality gate and exception evidence: implemented.
-- Phase 5 Kestra services and scheduled end-to-end flow: implemented.
-- Phase 6 BI-facing views, Power Query, DAX, theme, and dashboard specification: implemented.
+- Phase 4 configurable quality gate and exception evidence: complete and live-verified (12/12 rules passed).
+- Phase 5 Kestra services and scheduled end-to-end flow: complete and live-verified (all four tasks succeeded).
+- Phase 6 BI-facing views, Power Query, DAX, theme, and dashboard specification: complete and live-verified at the database contract.
 - Power BI Desktop `.pbix` assembly: requires a machine with Power BI Desktop.
 - Video: script and checklist complete; recording is a manual team action.
 - GitHub publication: pending creation/connection of a remote and authenticated push.
@@ -429,6 +430,8 @@ Do not report the repository as published until the push succeeds and the files 
 ## Remaining submission actions
 
 The engineering roadmap is implemented. External/manual submission actions remain: assemble and visually inspect the report in Power BI Desktop, capture the prescribed screenshots, record the walkthrough with a team member's voice, and push to an authenticated GitHub remote.
+
+Use [`docs/PRESENTATION_GUIDE.md`](docs/PRESENTATION_GUIDE.md) for the exact screens, verified numbers, 6–8 minute talk track, and likely questions.
 
 ## Troubleshooting
 

@@ -13,6 +13,10 @@ RUN python -m pip install --upgrade pip \
 COPY scripts/ /app/scripts/
 COPY sql/ /app/sql/
 COPY tests/ /app/tests/
+COPY flows/ /app/flows/
+COPY powerbi/ /app/powerbi/
+COPY config/ /app/config/
+COPY docker-compose.yml /app/docker-compose.yml
 
 WORKDIR /app
 ENTRYPOINT ["python", "/app/scripts/ingest.py"]
