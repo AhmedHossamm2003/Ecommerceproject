@@ -105,11 +105,125 @@ services:
     networks:
       - ecommerce_network
 
+  quality:
+    image: ecommerce-sales-pipeline-ingestion:latest
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile
+    container_name: ecommerce-quality
+    profiles: ["quality"]
+    restart: "no"
+    entrypoint: ["python", "/app/scripts/quality_check.py"]
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ecommerce_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+      PHASE4_QUALITY_SQL_PATH: /app/sql/05_phase4_quality.sql
+      DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-5}
+      DB_RETRY_ATTEMPTS: ${DB_RETRY_ATTEMPTS:-12}
+      DB_RETRY_DELAY_SECONDS: ${DB_RETRY_DELAY_SECONDS:-5}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecommerce_network
+
+  bi-prepare:
+    image: ecommerce-sales-pipeline-ingestion:latest
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile
+    container_name: ecommerce-bi-prepare
+    profiles: ["bi"]
+    restart: "no"
+    entrypoint: ["python", "/app/scripts/prepare_bi.py"]
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ecommerce_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+      PHASE6_BI_SQL_PATH: /app/sql/06_phase6_bi.sql
+      DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-5}
+      DB_RETRY_ATTEMPTS: ${DB_RETRY_ATTEMPTS:-12}
+      DB_RETRY_DELAY_SECONDS: ${DB_RETRY_DELAY_SECONDS:-5}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecommerce_network
+
+  kestra-postgres:
+    image: postgres:17.12-alpine3.23
+    container_name: ecommerce-kestra-postgres
+    profiles: ["orchestration"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kestra
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: ${KESTRA_DB_PASSWORD:-change_me_kestra_local_only}
+    volumes:
+      - kestra_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kestra -d kestra"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - ecommerce_network
+
+  kestra:
+    image: kestra/kestra:${KESTRA_VERSION:-v2.0.0}
+    container_name: ecommerce-kestra
+    profiles: ["orchestration"]
+    restart: unless-stopped
+    user: "root"
+    command:
+      - server
+      - standalone
+      - --worker-thread=8
+      - --config=/etc/kestra/application.yaml
+      - --flow-path=/app/flows
+    environment:
+      KESTRA_DB_PASSWORD: ${KESTRA_DB_PASSWORD:-change_me_kestra_local_only}
+      ENV_PIPELINE_DB_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+      ENV_PIPELINE_RAW_DATA_HOST_PATH: ${PIPELINE_RAW_DATA_HOST_PATH:-/data/olist}
+    ports:
+      - "${KESTRA_PORT:-8080}:8080"
+    volumes:
+      - kestra_data:/app/storage
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kestra-wd:/tmp/kestra-wd
+      - ./config/kestra/application.yaml:/etc/kestra/application.yaml:ro
+      - ./flows:/app/flows:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kestra-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8081/health >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 12
+      start_period: 90s
+    networks:
+      - ecommerce_network
+
 volumes:
   postgres_data:
     name: ecommerce_postgres_data
   pgadmin_data:
     name: ecommerce_pgadmin_data
+  kestra_postgres_data:
+    name: ecommerce_kestra_postgres_data
+  kestra_data:
+    name: ecommerce_kestra_data
 
 networks:
   ecommerce_network:

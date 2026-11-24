@@ -4,11 +4,11 @@
 
 - **Green, solid:** platform implemented during Phase 1.
 - **Blue, dashed:** data path implemented during Phases 2 and 3; the original diagram predates that implementation.
-- **Orange, dashed:** planned orchestration; Kestra is not installed.
+- **Orange, dashed:** Kestra orchestration, implemented in Phase 5 although shown as planned in the original diagram.
 
 ![Proposed Olist data architecture](architecture.png)
 
-The editable original proposal diagram is in `architecture.mmd`. Phases 2 and 3 now implement the CSV-to-raw-to-clean-to-warehouse-to-view path; Kestra and Power BI remain future work.
+The editable original proposal diagram is in `architecture.mmd`. Phases 2–6 implement the CSV-to-raw-to-clean-to-warehouse-to-quality-to-view path plus Kestra services and the Power BI build kit. The diagram is retained as the original proposal artifact.
 
 ## Phase 1 - implemented
 
@@ -31,11 +31,11 @@ The environment definition and live runtime were validated on this workstation w
 6. Transaction guards validate fact row/revenue and geolocation occurrence reconciliation.
 7. `analytics` views expose category, monthly trend, and customer-state reporting without one-to-many inflation.
 
-## Future phases - planned
+## Phases 4–6 - implemented
 
-1. Phase 4 adds configurable automated quality gates around the existing evidence.
-2. Phase 5 uses Kestra to schedule and monitor ingestion, transformation, and validation.
-3. Phase 6 connects Power BI to the analytical views.
+1. Phase 4 adds configurable blocking/warning rules and durable gate evidence.
+2. Phase 5 uses Kestra to schedule and monitor all executable pipeline stages.
+3. Phase 6 adds executive and health views plus the Power BI query, measure, theme, and layout kit.
 
 ## Design decisions
 
@@ -44,7 +44,7 @@ The environment definition and live runtime were validated on this workstation w
 - **Delivered orders are the primary completed-sales population.** Other statuses may be shown separately but are excluded from the main revenue measures.
 - **Revenue is not derived by joining payments to order items.** Both tables can contain multiple rows per order; joining them directly can multiply values.
 - **Containers are local and reproducible.** Named volumes retain PostgreSQL and pgAdmin state across normal stops and container recreation.
-- **Phase boundaries are explicit.** Ingestion and the star schema are implemented; configurable quality gates, Kestra, and Power BI are not presented as operational.
+- **Phase boundaries are explicit.** All repository stages are implemented; Power BI Desktop assembly, recording, and GitHub publication remain external/manual actions until evidenced.
 
 ## Runtime and connectivity
 

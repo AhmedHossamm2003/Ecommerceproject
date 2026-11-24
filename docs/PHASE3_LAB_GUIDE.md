@@ -11,7 +11,7 @@
 7. **What is an Unknown dimension member?** Key `0` keeps facts countable when a descriptive value is missing or unmatched.
 8. **How is idempotency achieved?** Each run rebuilds only derived tables from the same latest successful raw runs inside one transaction.
 9. **How is revenue protected?** Fact row count and `SUM(item_price)` must exactly reconcile with clean order items before commit.
-10. **What remains for later phases?** Configurable automated quality gates, Kestra scheduling, and Power BI.
+10. **What followed in later phases?** Phase 4 added configurable quality gates, Phase 5 added Kestra scheduling, and Phase 6 added Power BI-facing views and the dashboard build kit.
 
 ## Live demo
 

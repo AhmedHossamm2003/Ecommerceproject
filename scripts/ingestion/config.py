@@ -38,6 +38,8 @@ class Settings:
     schema_sql_path: Path
     phase3_schema_sql_path: Path
     phase3_transform_sql_path: Path
+    phase4_quality_sql_path: Path
+    phase6_bi_sql_path: Path
     db_host: str
     db_port: int
     db_name: str
@@ -69,6 +71,18 @@ class Settings:
                 os.getenv(
                     "PHASE3_TRANSFORM_SQL_PATH",
                     str(root / "sql" / "04_phase3_transform.sql"),
+                )
+            ),
+            phase4_quality_sql_path=Path(
+                os.getenv(
+                    "PHASE4_QUALITY_SQL_PATH",
+                    str(root / "sql" / "05_phase4_quality.sql"),
+                )
+            ),
+            phase6_bi_sql_path=Path(
+                os.getenv(
+                    "PHASE6_BI_SQL_PATH",
+                    str(root / "sql" / "06_phase6_bi.sql"),
                 )
             ),
             db_host=os.getenv("DB_HOST", "localhost"),

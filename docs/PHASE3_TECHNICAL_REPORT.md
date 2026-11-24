@@ -91,7 +91,7 @@ Before a transaction can commit, Phase 3 verifies:
 3. The sum of geolocation occurrence counts equals the selected raw geolocation count.
 4. All three analytical views return rows.
 
-Any violation rolls back the derived rebuild and marks the transformation run failed. These are technical transaction guards for Phase 3; a broader configurable quality-gate framework remains future work.
+Any violation rolls back the derived rebuild and marks the transformation run failed. These are technical transaction guards for Phase 3; Phase 4 subsequently added configurable blocking/warning policy and durable rule results.
 
 ## Commands
 
@@ -122,6 +122,6 @@ The baseline metrics found 610 products without a category, 13 products whose ca
 
 The leading delivered-sales results were `health_beauty` at 1,233,131.72 and Sao Paulo (`SP`) at 5,067,633.16. Full reproducible output and repeat-run evidence are recorded in `docs/evidence/PHASE3_VERIFICATION.md`.
 
-## Phase 4 handoff
+## Phase 4 continuation
 
-Phase 4 can build explicit configurable pass/fail quality gates around the recorded rejects, metrics, constraints, and reconciliation results. Phase 3 already provides typed data, lineage, deterministic grains, and baseline measurements without implementing Phase 4 orchestration or policy.
+Phase 4 builds explicit configurable pass/fail quality gates around these rejects, metrics, constraints, and reconciliation results. Phase 3 remains the typed-data and deterministic-modeling foundation; the implemented policy is in `sql/05_phase4_quality.sql` and `scripts/ingestion/quality.py`.

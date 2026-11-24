@@ -1,0 +1,39 @@
+// Add each measure to the table named before the bracket.
+
+ExecutiveKPIs[Sales Revenue] =
+SUM ( ExecutiveKPIs[delivered_sales_revenue] )
+
+ExecutiveKPIs[Delivered Orders] =
+SUM ( ExecutiveKPIs[delivered_orders] )
+
+ExecutiveKPIs[Delivered Items] =
+SUM ( ExecutiveKPIs[delivered_items] )
+
+ExecutiveKPIs[Average Order Revenue] =
+DIVIDE ( [Sales Revenue], [Delivered Orders] )
+
+CategorySales[Category Revenue] =
+SUM ( CategorySales[sales_revenue] )
+
+CategorySales[Category Revenue Share] =
+DIVIDE ( [Category Revenue], CALCULATE ( [Category Revenue], ALL ( CategorySales ) ) )
+
+MonthlySales[Monthly Revenue] =
+SUM ( MonthlySales[sales_revenue] )
+
+MonthlySales[Monthly Orders] =
+SUM ( MonthlySales[order_count] )
+
+StateSales[State Revenue] =
+SUM ( StateSales[sales_revenue] )
+
+StateSales[State Revenue Share] =
+DIVIDE ( [State Revenue], CALCULATE ( [State Revenue], ALL ( StateSales ) ) )
+
+PipelineHealth[Pipeline Is Healthy] =
+IF (
+    SELECTEDVALUE ( PipelineHealth[transformation_status] ) = "success"
+        && SELECTEDVALUE ( PipelineHealth[quality_gate_status] ) = "passed",
+    1,
+    0
+)

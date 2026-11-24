@@ -18,6 +18,11 @@ Phase 3 transformation components:
 - `transform.py` is the one-shot clean/warehouse transformation entry point.
 - `ingestion/transformation.py` records transformation metadata, selects the latest successful raw runs, and executes the Phase 3 SQL atomically.
 
+Phase 4 and Phase 6 components:
+
+- `quality_check.py` and `ingestion/quality.py` execute configurable quality policy and persist every observation.
+- `prepare_bi.py` creates and smoke-tests the Power BI-facing views.
+
 Run the supported container workflow from the repository root:
 
 ```bash
@@ -41,3 +46,10 @@ docker compose --profile transformation run --rm transformation
 ```
 
 The transformation container exits nonzero if initialization, type conversion, loading, or reconciliation fails.
+
+Run the quality gate and BI preparation:
+
+```bash
+docker compose --profile quality run --rm quality
+docker compose --profile bi run --rm bi-prepare
+```

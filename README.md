@@ -1,10 +1,10 @@
 # E-commerce Sales Data Pipeline
 
-University data engineering project using the [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce). Phases 1-3 now provide the local environment, immutable raw ingestion, typed cleaning, an auditable star schema, and analysis-ready PostgreSQL views.
+University data engineering project using the [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce). The repository now implements the complete local pipeline: immutable ingestion, typed cleaning, a reconciled star schema, configurable quality gates, Kestra orchestration, and a Power BI build kit.
 
 ## Project overview
 
-E-commerce data is distributed across orders, items, customers, products, sellers, payments, reviews, and locations. Phase 1 established the proposal, conceptual architecture, database model, repository, and local PostgreSQL/pgAdmin environment. Phase 2 ingests unchanged parsed source values into an auditable PostgreSQL raw layer. Phase 3 converts the latest successful raw runs into typed clean tables, a reconciled order-item star schema, and category, monthly, and state sales views. Configurable quality gates, orchestration, and Power BI remain future work.
+E-commerce data is distributed across orders, items, customers, products, sellers, payments, reviews, and locations. Phase 1 established the platform and design; Phase 2 implemented immutable raw ingestion; Phase 3 added the typed clean layer, star schema, and analytical views; Phase 4 enforces configurable quality rules; Phase 5 schedules the pipeline in Kestra; and Phase 6 supplies Power BI-facing views and a source-controlled dashboard build kit.
 
 The official source files have now been inspected locally. The verified profile contains 99,441 orders, 112,650 order items, 99,441 customer records, 32,951 products, 103,886 payment records, 99,224 reviews, 3,095 sellers, 1,000,163 geolocation rows, and 71 category translations. Raw files remain excluded from Git; reproducible hashes and measured quality results are recorded in `docs/dataset_profile.md`.
 
@@ -20,7 +20,7 @@ Primary product-sales revenue is `SUM(order_items.price)`, excluding freight. Pr
 
 ![Proposed architecture](docs/architecture.png)
 
-Implemented through Phase 3: Docker Compose, PostgreSQL, pgAdmin, persistent named volumes, one-shot Python ingestion/transformation containers, immutable JSONB raw storage, typed clean tables, transformation lineage, reject/metric evidence, a star schema, and analytical views. Kestra, configurable quality gates, and Power BI are future work. The original Phase 1 proposal diagram remains in `docs/architecture.md` and `docs/architecture.mmd`; implemented details are in the Phase 2 and Phase 3 technical reports.
+Implemented through Phase 6: Docker Compose, PostgreSQL, pgAdmin, one-shot Python pipeline stages, immutable JSONB raw storage, typed clean tables, lineage/reject evidence, a star schema, analytical views, persistent quality results, and Kestra scheduling/monitoring. The Power BI directory contains the connection queries, DAX, theme, page specification, and acceptance values; producing a `.pbix` still requires Power BI Desktop, which is not installed in this validation environment.
 
 ## Technology stack
 
@@ -33,8 +33,8 @@ Implemented through Phase 3: Docker Compose, PostgreSQL, pgAdmin, persistent nam
 | Python 3.12 | Streaming ingestion, profiling, and transformation control | Implemented in one-shot containers |
 | psycopg 3 | PostgreSQL connection and COPY loading | Implemented |
 | Mermaid | Architecture source | Diagram source supplied |
-| Kestra | Future orchestration | Planned only |
-| Power BI | Future dashboard | Planned only |
+| Kestra | Scheduling, retries, and monitoring | Compose service and scheduled flow implemented |
+| Power BI | Interactive reporting | Build kit implemented; Desktop assembly required |
 
 ## Repository structure
 
@@ -352,6 +352,42 @@ The verified official dataset produced 1,289,091 clean rows, 112,650 fact rows, 
 - Lab discussion/demo: `docs/PHASE3_LAB_GUIDE.md`
 - Actual execution evidence: `docs/evidence/PHASE3_VERIFICATION.md`
 
+## Phase 4: automated quality gate
+
+The `quality` Compose profile initializes configurable rules, evaluates each rule as one numeric observation, records the result, and exits nonzero when a blocking rule fails. Default checks cover source availability, rejects, fact grain, row/revenue reconciliation, dimension resolution, nonnegative measures, geolocation occurrences, analytical views, and delivered revenue. The translation-gap baseline is a warning threshold.
+
+```powershell
+docker compose --profile quality build quality
+docker compose --profile quality run --rm quality
+Get-Content -Raw sql\verify_phase4.sql | docker compose exec -T postgres psql -U ecommerce_user -d ecommerce_db
+```
+
+Rules can be enabled, disabled, reclassified, or assigned a new threshold in `quality.gate_rules` without changing Python code. Every execution and result remains in `quality.gate_runs` and `quality.gate_results`.
+
+## Phase 5: Kestra orchestration
+
+Kestra and its dedicated PostgreSQL metadata store are behind the `orchestration` profile. The versioned flow runs ingestion, transformation, quality enforcement, and BI-view preparation as Docker tasks, retries each stage once, and schedules a refresh at 03:00 every Monday in `Africa/Cairo`.
+
+Set `PIPELINE_RAW_DATA_HOST_PATH` in `.env` to the absolute host path of `data/raw`, then run:
+
+```powershell
+docker compose --profile orchestration up -d postgres kestra-postgres kestra
+docker compose --profile orchestration ps
+```
+
+Open `http://localhost:8080` to inspect the flow topology, executions, logs, retries, and schedule. The flow is preloaded from `flows/olist_ecommerce_pipeline.yaml`.
+
+## Phase 6: Power BI reporting
+
+Prepare the two additional BI-facing views:
+
+```powershell
+docker compose --profile bi build bi-prepare
+docker compose --profile bi run --rm bi-prepare
+```
+
+The `powerbi/` directory provides credential-free PostgreSQL Power Query definitions, DAX measures, an accessible report theme, a three-page layout specification, and exact acceptance checks. Follow `powerbi/README.md` on a Windows machine with Power BI Desktop to assemble and visually validate the `.pbix`; Power BI Desktop is not installed on this workstation, so no unverified binary is committed.
+
 ## Current project status
 
 - Proposal Markdown and rendered PDF: complete.
@@ -363,6 +399,10 @@ The verified official dataset produced 1,289,091 clean rows, 112,650 fact rows, 
 - Docker runtime validation: complete using Docker Desktop 4.99.0 with the WSL 2 backend; both services are healthy.
 - Phase 2 immutable ingestion: complete for all nine official files (1,550,922 raw rows).
 - Phase 3 typed clean layer, star schema, reconciliation, and analytical views: complete and verified.
+- Phase 4 configurable quality gate and exception evidence: implemented.
+- Phase 5 Kestra services and scheduled end-to-end flow: implemented.
+- Phase 6 BI-facing views, Power Query, DAX, theme, and dashboard specification: implemented.
+- Power BI Desktop `.pbix` assembly: requires a machine with Power BI Desktop.
 - Video: script and checklist complete; recording is a manual team action.
 - GitHub publication: pending creation/connection of a remote and authenticated push.
 
@@ -386,9 +426,9 @@ git push -u origin main
 
 Do not report the repository as published until the push succeeds and the files are visible on GitHub.
 
-## Future phases
+## Remaining submission actions
 
-Phase 4 will add configurable automated quality gates, Phase 5 will add Kestra orchestration, and Phase 6 will add Power BI. None is falsely marked operational in this repository.
+The engineering roadmap is implemented. External/manual submission actions remain: assemble and visually inspect the report in Power BI Desktop, capture the prescribed screenshots, record the walkthrough with a team member's voice, and push to an authenticated GitHub remote.
 
 ## Troubleshooting
 

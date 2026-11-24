@@ -1,0 +1,101 @@
+id: olist_ecommerce_pipeline
+namespace: university.ecommerce
+description: Idempotent Olist ingestion, transformation, and quality validation.
+
+labels:
+  project: ecommerce-sales-pipeline
+  phase: production-pipeline
+
+tasks:
+  - id: ingest_raw_files
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: ecommerce-sales-pipeline-ingestion:latest
+    pullPolicy: NEVER
+    entryPoint:
+      - python
+      - /app/scripts/ingest.py
+    commands:
+      - --strict-files
+      - --skip-profile
+    networkMode: ecommerce_network
+    volumes:
+      - "{{ envs.pipeline_raw_data_host_path }}:/data/raw:ro"
+    env:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: "{{ envs.pipeline_db_password }}"
+      DATA_DIR: /data/raw
+      SCHEMA_SQL_PATH: /app/sql/02_raw_storage.sql
+    retry:
+      type: constant
+      interval: PT30S
+      maxAttempt: 2
+
+  - id: build_clean_warehouse
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: ecommerce-sales-pipeline-ingestion:latest
+    pullPolicy: NEVER
+    entryPoint:
+      - python
+      - /app/scripts/transform.py
+    networkMode: ecommerce_network
+    env:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: "{{ envs.pipeline_db_password }}"
+      PHASE3_SCHEMA_SQL_PATH: /app/sql/03_phase3_schema.sql
+      PHASE3_TRANSFORM_SQL_PATH: /app/sql/04_phase3_transform.sql
+    retry:
+      type: constant
+      interval: PT30S
+      maxAttempt: 2
+
+  - id: enforce_quality_gate
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: ecommerce-sales-pipeline-ingestion:latest
+    pullPolicy: NEVER
+    entryPoint:
+      - python
+      - /app/scripts/quality_check.py
+    networkMode: ecommerce_network
+    env:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: "{{ envs.pipeline_db_password }}"
+      PHASE4_QUALITY_SQL_PATH: /app/sql/05_phase4_quality.sql
+    retry:
+      type: constant
+      interval: PT30S
+      maxAttempt: 2
+
+  - id: prepare_bi_views
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: ecommerce-sales-pipeline-ingestion:latest
+    pullPolicy: NEVER
+    entryPoint:
+      - python
+      - /app/scripts/prepare_bi.py
+    networkMode: ecommerce_network
+    env:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: "{{ envs.pipeline_db_password }}"
+      PHASE6_BI_SQL_PATH: /app/sql/06_phase6_bi.sql
+    retry:
+      type: constant
+      interval: PT30S
+      maxAttempt: 2
+
+triggers:
+  - id: weekly_monday_refresh
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 3 * * 1"
+    timezone: Africa/Cairo
