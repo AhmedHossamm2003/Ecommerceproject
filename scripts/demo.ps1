@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet("help", "start", "test", "status", "stop")]
+    [ValidateSet("help", "start", "open", "test", "status", "stop")]
     [string]$Action = "help"
 )
 
@@ -55,12 +55,12 @@ function Assert-LocalSetup {
         throw "Missing .env. Run: Copy-Item .env.example .env, then replace the example passwords."
     }
 
-    $missingFiles = foreach ($fileName in $ExpectedRawFiles) {
+    $missingFiles = @(foreach ($fileName in $ExpectedRawFiles) {
         $filePath = Join-Path -Path "data\raw" -ChildPath $fileName
         if (-not (Test-Path -LiteralPath $filePath -PathType Leaf)) {
             $fileName
         }
-    }
+    })
 
     if ($missingFiles.Count -gt 0) {
         throw "Missing Olist files in data\raw: $($missingFiles -join ', ')"
@@ -68,6 +68,25 @@ function Assert-LocalSetup {
 }
 
 switch ($Action) {
+    "open" {
+        Assert-DockerReady
+
+        if (-not (Test-Path -LiteralPath ".env" -PathType Leaf)) {
+            throw "Missing .env. Run: Copy-Item .env.example .env, then replace the example passwords."
+        }
+
+        Invoke-DockerStep "Open the saved project services" @(
+            "compose", "--profile", "orchestration", "up", "-d",
+            "postgres", "pgadmin", "kestra-postgres", "kestra"
+        )
+        Invoke-DockerStep "Show service status" @("compose", "--profile", "orchestration", "ps")
+
+        Write-Host ""
+        Write-Host "Saved project is open and ready for presentation." -ForegroundColor Green
+        Write-Host "pgAdmin: http://localhost:5050"
+        Write-Host "Kestra:  http://localhost:8080"
+    }
+
     "start" {
         Assert-DockerReady
         Assert-LocalSetup
@@ -118,6 +137,7 @@ switch ($Action) {
         Write-Host ""
         Write-Host "Run from the repository root:"
         Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 start"
+        Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 open"
         Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 test"
         Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 status"
         Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 stop"

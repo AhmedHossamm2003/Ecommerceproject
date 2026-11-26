@@ -126,6 +126,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 test
 powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 stop
 ```
 
+أمر `start` هو full rebuild وقد يستغرق وقتًا طويلًا مع البيانات الكاملة. بعد نجاحه مرة واحدة،
+استخدم الأمر السريع التالي قبل أي عرض لاحق؛ سيشغل الخدمات المحفوظة بدون إعادة معالجة البيانات:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\demo.ps1 open
+```
+
 ### الاختيار التعليمي: الأوامر مرحلة بمرحلة
 
 نفّذ الأوامر التالية من داخل مجلد `Ecommerceproject`:

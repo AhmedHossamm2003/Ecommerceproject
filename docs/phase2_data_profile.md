@@ -2,7 +2,7 @@
 
 **Status:** VERIFIED AGAINST THE LOCAL UNMODIFIED CSV FILES
 
-**Generated:** 2026-11-23 14:28:38 UTC
+**Generated:** 2026-11-26 10:17:47 UTC
 
 This is a full streaming profile, not a sample. Empty strings and the case-insensitive markers `null`, `none`, `na`, `n/a`, and `nan` are counted as missing for profiling only. Raw ingestion preserves the original parsed strings, including empty strings.
 
