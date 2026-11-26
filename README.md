@@ -26,7 +26,7 @@ Implemented through Phase 6: Docker Compose, PostgreSQL, pgAdmin, one-shot Pytho
 
 | Technology | Phase 1 use | Status |
 |---|---|---|
-| Git/GitHub | Version control and collaboration | Local Git initialized; remote must be added |
+| Git/GitHub | Version control and collaboration | Versioned project published at `AhmedHossamm2003/Ecommerceproject` |
 | Docker Compose | Reproducible local services | Configuration and WSL 2 runtime validated |
 | PostgreSQL 17.12 | Raw, clean, warehouse, and analytical data store | Running and verified through Phase 3 |
 | pgAdmin 4 9.19 | Database administration | Container healthy; HTTP, login, server registration, and connection tested |
@@ -40,7 +40,9 @@ Implemented through Phase 6: Docker Compose, PostgreSQL, pgAdmin, one-shot Pytho
 
 ```text
 ecommerce-sales-pipeline/
-|-- config/pgadmin/servers.json  # Default Docker server registration
+|-- config/
+|   |-- pgadmin/servers.json    # Default Docker server registration
+|   `-- kestra/application.yaml # Kestra authentication configuration
 |-- data/
 |   |-- raw/                    # Local unmodified CSVs; ignored by Git
 |   `-- README.md
@@ -61,6 +63,7 @@ ecommerce-sales-pipeline/
 |   |-- phase2_data_profile.md / phase2_data_profile.csv
 |   `-- evidence/
 |-- flows/olist_ecommerce_pipeline.yaml
+|-- powerbi/                    # Power Query, DAX, theme, and report specification
 |-- scripts/
 |   |-- ingest.py / transform.py / ingestion/
 |   |-- Dockerfile / requirements.txt
@@ -73,7 +76,8 @@ ecommerce-sales-pipeline/
 |-- sql/
 |   |-- 02_raw_storage.sql
 |   |-- 03_phase3_schema.sql / 04_phase3_transform.sql
-|   `-- verify_phase2.sql / verify_phase3.sql
+|   |-- 05_phase4_quality.sql / 06_phase6_bi.sql
+|   `-- verify_phase2.sql / verify_phase3.sql / verify_phase4.sql
 |-- tests/                      # Synthetic ingestion and SQL safety tests
 |-- docker-compose.yml
 |-- .env.example
@@ -88,6 +92,43 @@ ecommerce-sales-pipeline/
 - A browser for pgAdmin
 - Python 3.10+ only when regenerating the dataset profile or documentation artifacts
 - Kaggle account and accepted dataset terms to download the source data
+
+## Quick start for a collaborator
+
+Clone the published repository and enter it:
+
+```bash
+git clone https://github.com/AhmedHossamm2003/Ecommerceproject.git
+cd Ecommerceproject
+```
+
+Create the local, untracked environment file, replace every example password, and update
+`PIPELINE_RAW_DATA_HOST_PATH` for the cloned folder:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Download and extract the official Olist CSV files directly into `data/raw/` as described in
+[`data/README.md`](data/README.md). Then start the base services and run every pipeline stage:
+
+```powershell
+docker compose up -d postgres pgadmin
+docker compose --profile ingestion build ingestion
+docker compose --profile ingestion run --rm ingestion --strict-files
+docker compose --profile transformation build transformation
+docker compose --profile transformation run --rm transformation
+docker compose --profile quality build quality
+docker compose --profile quality run --rm quality
+docker compose --profile bi build bi-prepare
+docker compose --profile bi run --rm bi-prepare
+docker compose --profile orchestration up -d kestra-postgres kestra
+```
+
+Open pgAdmin at `http://localhost:5050` and Kestra at `http://localhost:8080`. Sign in with the
+values configured in the collaborator's own `.env`; no local password is committed to GitHub.
+The complete scheduled workflow is `flows/olist_ecommerce_pipeline.yaml`. For presentation and
+verification, follow [`docs/PRESENTATION_GUIDE.md`](docs/PRESENTATION_GUIDE.md).
 
 Confirm Docker is running:
 
@@ -405,31 +446,30 @@ The `powerbi/` directory provides credential-free PostgreSQL Power Query definit
 - Phase 6 BI-facing views, Power Query, DAX, theme, and dashboard specification: complete and live-verified at the database contract.
 - Power BI Desktop `.pbix` assembly: requires a machine with Power BI Desktop.
 - Video: script and checklist complete; recording is a manual team action.
-- GitHub publication: pending creation/connection of a remote and authenticated push.
+- GitHub publication target: `https://github.com/AhmedHossamm2003/Ecommerceproject`.
 
-## Publish to GitHub
+## GitHub collaboration
 
-Create an empty GitHub repository named `ecommerce-sales-pipeline` without adding a README, license, or `.gitignore`, then connect and push this existing local repository:
-
-```bash
-git remote add origin https://github.com/hossamadel7/ecommerce-sales-pipeline.git
-git remote -v
-git push -u origin main
-```
-
-If `origin` already exists but points to the wrong repository, inspect it first and then deliberately update it:
+The canonical remote repository is `AhmedHossamm2003/Ecommerceproject`. After cloning, collaborators
+can pull the latest `main` branch with:
 
 ```bash
 git remote -v
-git remote set-url origin https://github.com/hossamadel7/ecommerce-sales-pipeline.git
-git push -u origin main
+git pull --ff-only origin main
 ```
 
-Do not report the repository as published until the push succeeds and the files are visible on GitHub.
+Project maintainers can publish committed changes with:
+
+```bash
+git push origin main
+```
+
+Keep `.env`, Kaggle credentials, raw CSV files, logs, local runtimes, database exports, and Power BI
+credentials out of commits. `.env.example` documents every required setting without real secrets.
 
 ## Remaining submission actions
 
-The engineering roadmap is implemented. External/manual submission actions remain: assemble and visually inspect the report in Power BI Desktop, capture the prescribed screenshots, record the walkthrough with a team member's voice, and push to an authenticated GitHub remote.
+The engineering roadmap is implemented. External/manual submission actions remain: assemble and visually inspect the report in Power BI Desktop, capture the prescribed screenshots, and record the walkthrough with a team member's voice.
 
 Use [`docs/PRESENTATION_GUIDE.md`](docs/PRESENTATION_GUIDE.md) for the exact screens, verified numbers, 6–8 minute talk track, and likely questions.
 
