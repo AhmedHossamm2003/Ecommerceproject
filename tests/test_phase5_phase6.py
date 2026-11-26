@@ -25,7 +25,7 @@ class Phase5OrchestrationTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
 
     def test_flow_has_retries_schedule_and_network(self) -> None:
-        self.assertGreaterEqual(self.flow.count("maxattempt: 2"), 4)
+        self.assertGreaterEqual(self.flow.count("maxattempts: 2"), 4)
         self.assertIn('cron: "0 3 * * 1"', self.flow)
         self.assertGreaterEqual(self.flow.count("networkmode: ecommerce_network"), 4)
 

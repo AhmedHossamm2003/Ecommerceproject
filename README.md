@@ -95,6 +95,11 @@ ecommerce-sales-pipeline/
 
 ## Quick start for a collaborator
 
+> **New to the project?** Start with the step-by-step Arabic guide:
+> [`docs/BEGINNER_GUIDE_AR.md`](docs/BEGINNER_GUIDE_AR.md). It explains the tools, first run,
+> tests, browser screens, expected results, troubleshooting, and a ready 7-minute presentation.
+> The helper script `scripts/demo.ps1` provides one-command start, test, status, and safe stop actions.
+
 Clone the published repository and enter it:
 
 ```bash
